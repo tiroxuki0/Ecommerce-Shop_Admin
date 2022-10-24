@@ -1,0 +1,59 @@
+.container {
+  max-width: 1440px;
+  @include mx-auto;
+  @include padding-x(0.75rem, 0.75rem);
+
+  @include devices(xl) {
+    max-width: 1280px;
+  }
+
+  @include devices(lg) {
+    max-width: 1024px;
+  }
+
+  @include devices(md) {
+    max-width: 768px;
+  }
+
+  @include devices(sm) {
+    max-width: 640px;
+  }
+
+  @include devices(xs) {
+    width: 100%;
+  }
+}
+
+.wrapper {
+  display: grid;
+}
+
+.section {
+  @include padding-y(5rem, 5rem);
+}
+
+.overflow_hide {
+  overflow: hidden;
+}
+
+.backdrop {
+  background-color: rgba($color: #000000, $alpha: 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  @include dimension(100%, 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.modal_centered {
+  @include centered;
+  min-height: calc(100% - 3rem);
+  margin: 1.5rem;
+
+  @include devices(xs) {
+    min-height: calc(100% - 1rem);
+    margin: 0.5rem;
+  }
+}
