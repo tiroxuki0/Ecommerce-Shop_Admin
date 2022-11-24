@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { BsCartX } from "react-icons/bs";
 import Button from "@mui/material/Button";
 import CancelIcon from "@mui/icons-material/Close";
 import useScrollDisable from "../../../hooks/useScrollDisable";
