@@ -38,16 +38,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const dbFirestore = getFirestore(app);
-connectFirestoreEmulator(dbFirestore, "localhost", 8080);
+// connectFirestoreEmulator(dbFirestore, "localhost", 8080);
 
 const storage = getStorage(app);
-connectStorageEmulator(storage, "localhost", 9199);
+// connectStorageEmulator(storage, "localhost", 9199);
 
 const auth = getAuth();
-connectAuthEmulator(auth, "http://localhost:9099");
+// connectAuthEmulator(auth, "http://localhost:9099");
 
 const db = getDatabase();
-connectDatabaseEmulator(db, "localhost", 9000);
+// connectDatabaseEmulator(db, "localhost", 9000);
 
 const storageListAll = async (folder) => {
   // Create a reference under which you want to list

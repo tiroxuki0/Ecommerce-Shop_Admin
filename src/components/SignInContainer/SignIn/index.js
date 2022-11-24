@@ -58,13 +58,14 @@ export default function SignIn() {
     get(child(dbRef, "admins"))
       .then((snapshot) => {
         if (snapshot.exists()) {
-          console.log(snapshot.val());
-          const data = Object.keys(snapshot.val()).map(
-            (item) => snapshot.val()[item]
+          const data = Object.keys(snapshot.val()).map((item) => {
+            return { ...snapshot.val()[item], id: item };
+          });
+          const user = data.find(
+            (u) => u.email.toLowerCase() === email.toLowerCase()
           );
-          const user = data.find((u) => u.email === email);
           if (!user) {
-            notify("error", "Create your account first!");
+            notify("error", "Email is not valid!");
             dispatch(loginFailed());
             return;
           }
@@ -75,7 +76,7 @@ export default function SignIn() {
           }
           navigate("/");
           dispatch(loginSuccess(user));
-          notify("success", "Sign in successfully!");
+          notify("success", "Welcome back!");
         } else {
           dispatch(loginFailed());
           console.log("No data available!");

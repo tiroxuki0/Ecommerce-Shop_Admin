@@ -21,12 +21,15 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ProductForm from "../Modals/ProductForm";
 import ImagesManager from "../Modals/ImagesManager";
-import { mainListItems, secondaryListItems } from "./listItems";
+import UserForm from "../Modals/UsersForm";
+import OrderPreview from "../Modals/OrderPreview";
+import { mainListItems } from "./listItems";
 import { Outlet } from "react-router-dom";
 import styledd from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
-import { loginFailed } from "../../redux/authSlice";
+import { loginFailed, toggleAdminInfo } from "../../redux/authSlice";
 import useToast from "../../hooks/useToast";
+import { toggleUserForm } from "../../redux/commonSlice";
 
 const BoxStyled = styledd(Box)`
   &::-webkit-scrollbar {
@@ -81,10 +84,6 @@ const settings = [
   {
     href: "/",
     text: "Profile",
-  },
-  {
-    href: "/users",
-    text: "Users",
   },
   {
     href: "/logout",
@@ -169,9 +168,8 @@ function DashboardContent() {
       setAnchorElUser(null);
       switch (path) {
         case "/": {
-          break;
-        }
-        case "/users": {
+          dispatch(toggleAdminInfo(true));
+          dispatch(toggleUserForm(true));
           break;
         }
         case "/logout": {
@@ -219,11 +217,11 @@ function DashboardContent() {
                 sx={{ flexGrow: 1 }}
               ></Typography>
               {/* NOTIFICATIONS */}
-              <IconButton color="inherit" sx={{ mr: 2 }}>
+              {/* <IconButton color="inherit" sx={{ mr: 2 }}>
                 <Badge badgeContent={4} color="secondary">
                   <NotificationsIcon />
                 </Badge>
-              </IconButton>
+              </IconButton> */}
               {/* USER CONTROL */}
               {login ? (
                 <Box sx={{ flexGrow: 0 }}>
@@ -288,7 +286,6 @@ function DashboardContent() {
             <List component="nav">
               {mainListItems}
               <Divider sx={{ my: 1 }} />
-              {secondaryListItems}
             </List>
           </Drawer>
           <BoxStyled
@@ -313,8 +310,12 @@ function DashboardContent() {
       </ThemeProvider>
       {/* PRODUCT FORM */}
       <ProductForm />
+      {/* USER FORM */}
+      <UserForm />
       {/* IMAGES MANAGER MODAL */}
       <ImagesManager />
+      {/* ORDER PREVIEW MODAL */}
+      <OrderPreview />
     </>
   );
 }

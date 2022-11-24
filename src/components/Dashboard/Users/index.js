@@ -4,16 +4,21 @@ import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import Title from "../Title";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 import { randomId } from "@mui/x-data-grid-generator";
 import AddIcon from "@mui/icons-material/Add";
 import Avatar from "@mui/material/Avatar";
 import { useSelector, useDispatch } from "react-redux";
 import { setUsers } from "../../../redux/dataSlice";
+import { setUserSelected, toggleUserForm } from "../../../redux/commonSlice";
+import { updateUser, removeUser } from "../../../firebase/service";
+import useToast from "../../../hooks/useToast";
+import useDocTitle from "../../../hooks/useDocTitle";
 
 /* const initialRows = [
   {
@@ -142,38 +147,52 @@ const StyledPaper = styled(Paper)`
 /* END STYLES */
 
 export default function DataTable() {
+  useDocTitle("Users Management");
   const dispatch = useDispatch();
   const usersData = useSelector((state) => state.data.users);
-  const [isEdit, setIsEdit] = React.useState(false);
+  const [rows, setRows] = React.useState(usersData);
+  const [deleteSelected, setDeleteSelected] = React.useState("");
   const [selectionModel, setSelectionModel] = React.useState([]);
+  const { notify } = useToast();
+
+  React.useEffect(() => {
+    setRows(usersData);
+  }, [usersData]);
 
   /* PROCESS ROW UPDATE */
   const processRowUpdate = (newRow, oldRow) => {
     console.log("oldRow: ", oldRow);
     console.log("newRow: ", newRow);
+    if (newRow) {
+      const { id, ...other } = newRow;
+      notify("success", "Updated!");
+      updateUser(newRow.idDB, { ...other, uid: newRow.id });
+    }
     const updatedRow = { ...newRow, isNew: false };
     return updatedRow;
   };
   /* END PROCESS ROW UPDATE */
 
-  const deleteUser = (id) => {
-    /* const usersArray = Object.keys(usersData).map((item) => {
-      return { ...usersData[item], id: item };
-    });
-    setTimeout(() => {
-      dispatch(setUsers(users));
-    }); */
-  };
+  const deleteUser = React.useCallback(
+    (id) => async () => {
+      notify("success", "User deleted!");
+      setRows((prevRows) => prevRows.filter((row) => row.id !== id));
+      const userDel = await usersData.find((user) => user.id === id);
+      await removeUser(userDel.idDB);
+      setDeleteSelected("");
+    },
+    []
+  );
 
-  const columns = React.useMemo(
-    () => [
-      {
-        field: "delete",
-        headerName: "Delete",
-        width: 70,
-        sortable: false,
-        disableClickEventBubbling: true,
-        renderCell: (params) => {
+  const columns = [
+    {
+      field: "delete",
+      headerName: "Delete",
+      width: 125,
+      sortable: false,
+      disableClickEventBubbling: true,
+      renderCell: (params) => {
+        if (deleteSelected === params.id) {
           return (
             <div
               style={{
@@ -183,65 +202,77 @@ export default function DataTable() {
                 justifyContent: "center",
               }}
             >
-              <Button
-                onClick={() => {
-                  deleteUser(params.id);
-                }}
-              >
+              <Button onClick={deleteUser(params.id)}>
+                <CheckIcon sx={{ color: "#9e9e9e" }} />
+              </Button>
+              <Button onClick={() => setDeleteSelected("")}>
+                <CancelIcon sx={{ color: "#9e9e9e" }} />
+              </Button>
+            </div>
+          );
+        } else {
+          return (
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Button onClick={() => setDeleteSelected(params.id)}>
                 <DeleteIcon sx={{ color: "#9e9e9e" }} />
               </Button>
             </div>
           );
-        },
+        }
       },
-      { field: "id", headerName: "UID", width: 150 },
-      {
-        field: "photoURL",
-        headerName: "Photo URL",
-        width: 100,
-        align: "center",
-        renderCell: (params) => {
-          return (
-            <Avatar
-              alt={params.row.username}
-              src={
-                params.value.includes("http")
-                  ? params.value
-                  : `data:image/svg+xml;base64,${params.value}`
-              }
-            />
-          );
-        },
+    },
+    { field: "id", headerName: "UID", width: 150 },
+    {
+      field: "photoURL",
+      headerName: "Photo URL",
+      width: 100,
+      align: "center",
+      renderCell: (params) => {
+        return (
+          <Avatar
+            alt={params.row.username}
+            src={
+              params.value.includes("http")
+                ? params.value
+                : params.value.includes("data:image")
+                ? params.value
+                : `data:image/svg+xml;base64,${params.value}`
+            }
+          />
+        );
       },
-      {
-        field: "username",
-        headerName: "Username",
-        editable: true,
-        width: 200,
-      },
-      { field: "email", headerName: "Email", editable: true, width: 200 },
-      {
-        field: "password",
-        headerName: "Password",
-        editable: true,
-        width: 150,
-      },
-      {
-        field: "providerId",
-        headerName: "Provider",
-        editable: true,
-        width: 150,
-      },
-      {
-        field: "admin",
-        headerName: "Admin",
-        type: "boolean",
-        width: 100,
-        editable: true,
-      },
-    ],
-    [deleteUser]
-  );
+    },
+    {
+      field: "username",
+      headerName: "Username",
+      width: 200,
+    },
+    { field: "email", headerName: "Email", width: 200 },
+    {
+      field: "password",
+      headerName: "Password",
+      width: 150,
+    },
+    {
+      field: "providerId",
+      headerName: "Provider",
+      width: 150,
+    },
+    {
+      field: "admin",
+      headerName: "Admin*",
+      type: "boolean",
+      editable: true,
+      width: 100,
+    },
+  ];
 
   return (
     <>
@@ -262,37 +293,43 @@ export default function DataTable() {
             justifyContent: "center",
           }}
         >
-          {isEdit ? (
+          {selectionModel.length > 0 && (
             <>
-              <Button
-                onClick={() => {
-                  setSelectionModel([]);
-                  setIsEdit(false);
-                }}
-              >
-                <CancelIcon sx={{ color: "#9e9e9e" }} />
-              </Button>
-              <Button
-                onClick={() => {
-                  setSelectionModel([]);
-                  setIsEdit(false);
-                }}
-              >
-                <SaveIcon sx={{ color: "#8bc34a" }} />
-              </Button>
+              {deleteSelected ? (
+                <>
+                  <Button onClick={deleteUser(deleteSelected)}>
+                    <CheckIcon sx={{ color: "#9e9e9e" }} />
+                  </Button>
+                  <Button onClick={() => setDeleteSelected("")}>
+                    <CancelIcon sx={{ color: "#9e9e9e" }} />
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={() => setDeleteSelected(selectionModel[0])}>
+                  <DeleteIcon sx={{ color: "#9e9e9e" }} />
+                </Button>
+              )}
             </>
-          ) : (
-            <Button
-              onClick={() => {
-                if (selectionModel.length > 0) {
-                  setIsEdit(true);
-                }
-              }}
-            >
-              <EditIcon sx={{ color: "#8bc34a" }} />
-            </Button>
           )}
           <Button onClick={() => {}}>
+            <EditIcon
+              onClick={() => {
+                if (selectionModel.length > 0) {
+                  const findUser = usersData.find(
+                    (prod) => prod.id === selectionModel[0]
+                  );
+                  dispatch(setUserSelected(findUser));
+                  dispatch(toggleUserForm(true));
+                }
+              }}
+              sx={{ color: "#8bc34a" }}
+            />
+          </Button>
+          <Button
+            onClick={() => {
+              dispatch(toggleUserForm(true));
+            }}
+          >
             <AddIcon sx={{ color: "#8bc34a" }} />
           </Button>
         </div>
@@ -300,10 +337,10 @@ export default function DataTable() {
       <StyledPaper>
         <StyledBox>
           <DataGrid
-            rows={usersData}
+            rows={rows}
             columns={columns}
-            pageSize={10}
             autoHeight={true}
+            pageSize={10}
             rowsPerPageOptions={[10]}
             checkboxSelection={false}
             onSelectionModelChange={(newSelectionModel) => {

@@ -9,10 +9,14 @@ export const dataSlice = createSlice({
     users: [],
     orders: [],
     subs: [],
+    admins: [],
     pendingProducts: true,
     pendingImages: true,
   },
   reducers: {
+    setAdmins: (state, action) => {
+      state.admins = action.payload;
+    },
     setSubs: (state, action) => {
       state.subs = action.payload;
     },
@@ -58,6 +62,7 @@ export const {
   getImagesStart,
   getImagesEnd,
   setSubs,
+  setAdmins,
 } = dataSlice.actions;
 
 export default dataSlice.reducer;

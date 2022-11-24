@@ -11,6 +11,9 @@ import CancelIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import { useSelector } from "react-redux";
 import { sortArray } from "../../../helpers/utils";
+import { updateSub } from "../../../firebase/service";
+import useDocTitle from "../../../hooks/useDocTitle";
+import useToast from "../../../hooks/useToast";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   height: 550,
@@ -54,6 +57,7 @@ const StyledPaper = styled(Paper)`
 `;
 
 export default function Orders() {
+  useDocTitle("Subcribers Management");
   const subsData = useSelector((state) => state.data.subs);
   const [subs, setSubs] = React.useState(
     subsData
@@ -62,11 +66,13 @@ export default function Orders() {
             id: sub.id,
             createdAt: sub.createdAt.date + " | " + sub.createdAt.time,
             email: sub.email,
+            contact: sub.contact && sub.contact === true ? true : false,
           };
         })
       : []
   );
   const [selectionModel, setSelectionModel] = React.useState([]);
+  const { notify } = useToast();
 
   React.useEffect(() => {
     setSubs(
@@ -76,6 +82,7 @@ export default function Orders() {
               id: sub.id,
               createdAt: sub.createdAt.date + " | " + sub.createdAt.time,
               email: sub.email,
+              contact: sub.contact && sub.contact === true ? true : false,
             };
           })
         : []
@@ -83,8 +90,11 @@ export default function Orders() {
   }, [subsData]);
 
   const processRowUpdate = (newRow, oldRow) => {
-    console.log("oldRow: ", oldRow);
-    console.log("newRow: ", newRow);
+    const subFound = subsData.find((sub) => sub.id === newRow.id);
+    const { id, ...other } = subFound;
+    console.log(subFound);
+    updateSub(id, { ...other, contact: newRow.contact });
+    notify("success", "Updated!");
     const updatedRow = { ...newRow, isNew: false };
     return updatedRow;
   };
@@ -93,10 +103,17 @@ export default function Orders() {
     {
       field: "id",
       headerName: "ID",
-      width: 300,
+      width: 250,
     },
     { field: "email", headerName: "Email address", width: 300 },
-    { field: "createdAt", headerName: "createdAt", editable: true, width: 200 },
+    { field: "createdAt", headerName: "Sub at", width: 200 },
+    {
+      field: "contact",
+      headerName: "Contact*",
+      type: "boolean",
+      editable: true,
+      width: 100,
+    },
   ];
 
   return (
@@ -110,31 +127,7 @@ export default function Orders() {
           marginBottom: "5px",
         }}
       >
-        <Title>Emails</Title>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Button onClick={() => {}}>
-            <CancelIcon sx={{ color: "#9e9e9e" }} />
-          </Button>
-          <Button onClick={() => {}}>
-            <SaveIcon sx={{ color: "#8bc34a" }} />
-          </Button>
-          <Button
-            onClick={() => {
-              console.log(selectionModel[0]);
-            }}
-          >
-            <EditIcon sx={{ color: "#8bc34a" }} />
-          </Button>
-          <Button onClick={() => {}}>
-            <AddIcon sx={{ color: "#8bc34a" }} />
-          </Button>
-        </div>
+        <Title>Subcribers</Title>
       </div>
       <StyledPaper>
         <StyledBox>

@@ -9,8 +9,10 @@ import Reviews from "../components/Dashboard/Reviews";
 import Orders from "../components/Dashboard/Orders/Orders";
 import Subs from "../components/Dashboard/Subs/Subs";
 import RequiredAuth from "../components/RequiredAuth";
+import { useSelector } from "react-redux";
 
 const RouterRoutes = () => {
+  const pendingProducts = useSelector((state) => state.data.pendingProducts);
   return (
     <Router>
       <Routes>
@@ -18,7 +20,13 @@ const RouterRoutes = () => {
           path="/"
           element={
             <RequiredAuth>
-              <Dashboard />
+              {pendingProducts ? (
+                <div className="loading_wrapper">
+                  <div className="loading"></div>
+                </div>
+              ) : (
+                <Dashboard />
+              )}
             </RequiredAuth>
           }
         >

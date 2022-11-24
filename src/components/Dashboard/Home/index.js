@@ -3,8 +3,10 @@ import Deposits from "../Deposits";
 import OrdersPreview from "../Orders/OrdersPreview";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
+import useDocTitle from "../../../hooks/useDocTitle";
 
 const Home = () => {
+  useDocTitle("Home Page");
   return (
     <>
       <Grid container spacing={3}>

@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { ref, push, set, update, get, child } from "firebase/database";
+import { ref, push, set, update, get, child, remove } from "firebase/database";
 import { auth, db } from "./config";
 import { createdAt } from "../helpers/utils";
 
@@ -101,17 +101,8 @@ const addDocument = async (dbname, data) => {
   const dataRef = await ref(db, dbname);
   const newRef = await push(dataRef);
   await set(newRef, data);
-  console.log(newRef);
   return newRef;
 };
-
-function updateUser(id, data) {
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  const updates = {};
-  updates["/usersData/" + id] = data;
-
-  return update(ref(db), updates);
-}
 
 /* ORDER */
 const writeOrder = async (userId, idOrder, data) => {
@@ -167,6 +158,79 @@ const checkCartUser = async (userId, data) => {
     });
 };
 
+/* PRODUCT ACTIONS */
+
+function updateProduct(prodId, data) {
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates["/productsData/" + prodId] = data;
+
+  return update(ref(db), updates);
+}
+
+function removeProduct(prodId) {
+  const tasksRef = ref(db, "productsData/" + prodId);
+  remove(tasksRef).then(() => {
+    console.log("product removed");
+  });
+}
+
+/* USER ACTIONS */
+function updateUser(id, data) {
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates["/usersData/" + id] = data;
+
+  return update(ref(db), updates);
+}
+
+function removeUser(userId) {
+  const tasksRef = ref(db, "usersData/" + userId);
+  remove(tasksRef).then(() => {
+    console.log("user removed");
+  });
+}
+
+/* ORDER ACTIONS */
+function updateOrder(uid, id, data) {
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates["/ordersData/" + uid + "/" + id] = data;
+
+  return update(ref(db), updates);
+}
+
+function updateSub(id, data) {
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates["/subcribersData/" + id] = data;
+
+  return update(ref(db), updates);
+}
+
+function updateReview(id, data) {
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates["/reviewsData/" + id] = data;
+
+  return update(ref(db), updates);
+}
+
+function removeReview(reviewId) {
+  const tasksRef = ref(db, "reviewsData/" + reviewId);
+  remove(tasksRef).then(() => {
+    console.log("Review removed");
+  });
+}
+
+function updateAdmin(id, data) {
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  const updates = {};
+  updates["/admins/" + id] = data;
+
+  return update(ref(db), updates);
+}
+
 export {
   firebaseCreateNewAccount,
   firebaseNormalSignIn,
@@ -179,6 +243,14 @@ export {
   checkOrderId,
   writeCart,
   updateCart,
-  updateUser,
   checkCartUser,
+  updateProduct,
+  removeProduct,
+  updateUser,
+  removeUser,
+  updateOrder,
+  updateSub,
+  updateReview,
+  removeReview,
+  updateAdmin,
 };

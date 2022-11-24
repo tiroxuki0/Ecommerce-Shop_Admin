@@ -60,7 +60,6 @@ export default function SignUp() {
     get(child(dbRef, "admins"))
       .then(async (snapshot) => {
         if (snapshot.exists()) {
-          console.log(snapshot.val());
           const data = Object.keys(snapshot.val()).map(
             (item) => snapshot.val()[item]
           );
@@ -72,13 +71,13 @@ export default function SignUp() {
             return;
           }
           const result = await createUser(
-            { username, password, email },
+            { username, password, email, admin: false },
             dispatch,
             navigate
           );
           if (result.code === 1) {
             notify("success", "Sign up successfully!");
-            dispatch(loginSuccess({ username, password, email }));
+            dispatch(loginSuccess({ username, password, email, admin: false }));
           } else {
             notify("error", "Sign up failed!");
           }
@@ -92,6 +91,21 @@ export default function SignUp() {
         console.error(error);
       });
   };
+
+  if (!ValidatorForm.hasValidationRule("minLengthEmail")) {
+    ValidatorForm.addValidationRule("minLengthEmail", async (value) => {
+      if (value.includes("@")) {
+        if (value.split("@")[0].length > 10) {
+          return true;
+        }
+      } else {
+        if (value.length > 10) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
 
   return (
     <Box
@@ -125,8 +139,11 @@ export default function SignUp() {
               label="Username"
               name="username"
               autoComplete="username"
-              validators={["required"]}
-              errorMessages={["Type your username!"]}
+              validators={["required", "minStringLength:10"]}
+              errorMessages={[
+                "Type your username!",
+                "Username is must at least 10 letters!",
+              ]}
             />
           </Grid>
           <Grid item xs={12}>
@@ -138,8 +155,12 @@ export default function SignUp() {
               id="email"
               fullWidth
               autoComplete="email"
-              validators={["required", "isEmail"]}
-              errorMessages={["Type your email!", "Email is not valid"]}
+              validators={["required", "isEmail", "minLengthEmail"]}
+              errorMessages={[
+                "Type your email!",
+                "Email is not valid",
+                "Email is must at least 10 letters!",
+              ]}
             />
           </Grid>
           <Grid item xs={12}>
@@ -152,8 +173,11 @@ export default function SignUp() {
               type="password"
               fullWidth
               autoComplete="password"
-              validators={["required"]}
-              errorMessages={["Type your password!"]}
+              validators={["required", "minStringLength:10"]}
+              errorMessages={[
+                "Type your password!",
+                "Password is must at least 10 letters!",
+              ]}
             />
           </Grid>
         </Grid>

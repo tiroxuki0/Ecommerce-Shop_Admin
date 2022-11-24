@@ -20,6 +20,9 @@ const useToast = () => {
       case "error":
         toast.error(message, { ...toastOptions, ...options });
         break;
+      case "info":
+        toast.info(message, { ...toastOptions, ...options });
+        break;
       default:
         console.log("Failed");
     }

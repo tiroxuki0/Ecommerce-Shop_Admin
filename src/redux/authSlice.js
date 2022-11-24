@@ -4,9 +4,10 @@ export const authSlice = createSlice({
   name: "auth",
   initialState: {
     userInfo: "",
-    login: true,
+    login: false,
     error: false,
     pending: false,
+    isAdminInfo: false,
   },
   reducers: {
     loginStart: (state) => {
@@ -28,10 +29,18 @@ export const authSlice = createSlice({
     setUserInfo: (state, action) => {
       state.userInfo = action.payload;
     },
+    toggleAdminInfo: (state, action) => {
+      state.isAdminInfo = action.payload;
+    },
   },
 });
 
-export const { loginSuccess, loginStart, loginFailed, setUserInfo } =
-  authSlice.actions;
+export const {
+  loginSuccess,
+  loginStart,
+  loginFailed,
+  setUserInfo,
+  toggleAdminInfo,
+} = authSlice.actions;
 
 export default authSlice.reducer;

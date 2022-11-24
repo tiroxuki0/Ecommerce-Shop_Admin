@@ -9,8 +9,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { sortArray } from "../../../helpers/utils";
+import {
+  setOrderSelected,
+  toggleOrderPreview,
+} from "../../../redux/commonSlice";
+import { updateOrder } from "../../../firebase/service";
+import useDocTitle from "../../../hooks/useDocTitle";
+import useToast from "../../../hooks/useToast";
 
 const StyledBox = styled(Box)(({ theme }) => ({
   height: 550,
@@ -54,7 +61,10 @@ const StyledPaper = styled(Paper)`
 `;
 
 export default function Orders() {
+  useDocTitle("Orders Management");
+  const dispatch = useDispatch();
   const ordersData = useSelector((state) => state.data.orders);
+  const { notify } = useToast();
   const [orders, setOrders] = React.useState(
     ordersData
       ? sortArray(ordersData).map((order) => {
@@ -70,7 +80,12 @@ export default function Orders() {
               : order.shippingAddress.address2,
             payment: "VISA " + order.paymentDetails.cardNumber,
             amount: order.cart.totalAmount.text,
-            shipped: order.tracking === "ordered" ? false : true,
+            shipped:
+              order.tracking === "ordered"
+                ? false
+                : order.tracking === "shipped"
+                ? true
+                : false,
           };
         })
       : []
@@ -101,8 +116,17 @@ export default function Orders() {
   }, [ordersData]);
 
   const processRowUpdate = (newRow, oldRow) => {
-    console.log("oldRow: ", oldRow);
-    console.log("newRow: ", newRow);
+    if (selectionModel[0]) {
+      const orderFound = ordersData.find(
+        (order) => order.id === selectionModel[0]
+      );
+      const { id, uid, ...other } = orderFound;
+      updateOrder(uid, id, {
+        ...other,
+        tracking: newRow.shipped ? "shipped" : "ordered",
+      });
+      notify("success", "Updated tracking order!");
+    }
     const updatedRow = { ...newRow, isNew: false };
     return updatedRow;
   };
@@ -111,29 +135,27 @@ export default function Orders() {
     {
       field: "id",
       headerName: "No.",
-      width: 100,
+      width: 80,
       renderCell: (params) => {
         return <p>#{params.id}</p>;
       },
     },
-    { field: "date", headerName: "Date", width: 150 },
-    { field: "name", headerName: "Name", editable: true, width: 200 },
-    { field: "address", headerName: "Ship To", editable: true, width: 250 },
+    { field: "date", headerName: "Date", width: 200 },
+    { field: "name", headerName: "Name", width: 200 },
+    { field: "address", headerName: "Ship To", width: 250 },
     {
       field: "payment",
       headerName: "Payment Method",
-      editable: true,
       width: 150,
     },
     {
       field: "amount",
       headerName: "Sale Amount",
       width: 100,
-      editable: true,
     },
     {
       field: "shipped",
-      headerName: "Shipped",
+      headerName: "Shipped*",
       type: "boolean",
       width: 100,
       editable: true,
@@ -159,21 +181,19 @@ export default function Orders() {
             justifyContent: "center",
           }}
         >
-          <Button onClick={() => {}}>
+          {/* <Button onClick={() => {}}>
             <CancelIcon sx={{ color: "#9e9e9e" }} />
           </Button>
           <Button onClick={() => {}}>
             <SaveIcon sx={{ color: "#8bc34a" }} />
-          </Button>
+          </Button> */}
           <Button
             onClick={() => {
-              console.log(selectionModel[0]);
+              dispatch(setOrderSelected(selectionModel[0]));
+              dispatch(toggleOrderPreview(true));
             }}
           >
             <EditIcon sx={{ color: "#8bc34a" }} />
-          </Button>
-          <Button onClick={() => {}}>
-            <AddIcon sx={{ color: "#8bc34a" }} />
           </Button>
         </div>
       </div>
