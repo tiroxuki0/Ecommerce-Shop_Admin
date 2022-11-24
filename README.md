@@ -8,29 +8,32 @@ Audio Store eCommerce Admin Dashboard
 
 ## Tính năng:
 
-- #### Xác thực đăng nhập admin
+- #### Xác thực tài khoản admin
+
 - #### Tạo mới tài khoản admin
+
+- #### Cập nhật thông tin tài khoản admin
+
 - #### Thêm/Sửa/Xóa/Cập nhật sản phẩm
+
 - #### Theo dõi doanh thu trong tháng
-- #### Quản lý đơn hàng
-- #### Xóa tài khoản người dùng
-- #### Increment / Decrement the Product's Quantity
-- #### Product's Total Price / Discount Calculations
-- #### Custom Hooks
-- #### Fully Responsive
-- #### Dark Theme
-- #### Multi Pages
+
+- #### Xem/Xóa tài khoản người dùng
+
+- #### Xem/Đánh dấu người đơn hàng
+
+- #### Xem/Đánh dấu người đăng ký
+
+- #### Xem/Sửa/Xóa đánh giá sản phẩm
 
 <br/>
 
-## Technologies used:
+## Công nghệ sử dụng:
 
 - #### **React JS**
 - #### **React Router**
-- #### **React Swiper**
 - #### **React Redux**
 - #### **Redux Persist**
-- #### **Ant Design**
 - #### **Material UI**
 - #### **SASS**
 - #### **Styled Components**
@@ -40,7 +43,7 @@ Audio Store eCommerce Admin Dashboard
 
 <br/>
 
-## Author:
+## Tác giả:
 
 - **Minh Huy** - **[Github Page](https://github.com/tiroxuki0)**
 
