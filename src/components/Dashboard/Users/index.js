@@ -311,27 +311,6 @@ export default function DataTable() {
               )}
             </>
           )}
-          <Button onClick={() => {}}>
-            <EditIcon
-              onClick={() => {
-                if (selectionModel.length > 0) {
-                  const findUser = usersData.find(
-                    (prod) => prod.id === selectionModel[0]
-                  );
-                  dispatch(setUserSelected(findUser));
-                  dispatch(toggleUserForm(true));
-                }
-              }}
-              sx={{ color: "#8bc34a" }}
-            />
-          </Button>
-          <Button
-            onClick={() => {
-              dispatch(toggleUserForm(true));
-            }}
-          >
-            <AddIcon sx={{ color: "#8bc34a" }} />
-          </Button>
         </div>
       </div>
       <StyledPaper>
